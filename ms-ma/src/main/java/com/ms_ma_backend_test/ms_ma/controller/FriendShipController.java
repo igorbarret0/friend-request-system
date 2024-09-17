@@ -4,6 +4,7 @@ import com.ms_ma_backend_test.ms_ma.dtos.UserDto;
 import com.ms_ma_backend_test.ms_ma.service.FriendShipService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -20,32 +21,32 @@ public class FriendShipController {
 
     @PostMapping("/request")
     public ResponseEntity<String> requestFriendShip(@RequestParam Long requesterId,
-                                                    @RequestParam Long friendId) {
+                                                    JwtAuthenticationToken token) {
 
-        friendShipService.requestFriendShip(requesterId, friendId);
+        friendShipService.requestFriendShip(requesterId, token);
         return ResponseEntity.ok("Your request was sent successfully");
     }
 
     @PostMapping("/accept")
-    public ResponseEntity<String> acceptFriendShip(@RequestParam Long friendId,
-                                                   @RequestParam Long requesterId) {
+    public ResponseEntity<String> acceptFriendShip(@RequestParam Long requesterId,
+                                                   JwtAuthenticationToken token) {
 
-        friendShipService.acceptFriendShip(friendId, requesterId);
+        friendShipService.acceptFriendShip(requesterId, token);
         return ResponseEntity.ok("Request accepted with success");
     }
 
     @PostMapping("/decline")
-    public ResponseEntity<String> declineFriendShip(@RequestParam Long friendId,
-                                                   @RequestParam Long requesterId) {
+    public ResponseEntity<String> declineFriendShip(@RequestParam Long requesterId,
+                                                    JwtAuthenticationToken token) {
 
-        friendShipService.declineFriendShip(friendId, requesterId);
+        friendShipService.declineFriendShip(requesterId, token);
         return ResponseEntity.ok("Request declined with success");
     }
 
-    @GetMapping("/{id}")
-    public ResponseEntity<List<UserDto>> getUserFriends(@PathVariable(value = "id") Long userId) {
+    @GetMapping
+    public ResponseEntity<List<UserDto>> getUserFriends(JwtAuthenticationToken token) {
 
-        var response = friendShipService.getUserFriends(userId);
+        var response = friendShipService.getUserFriends(token);
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
