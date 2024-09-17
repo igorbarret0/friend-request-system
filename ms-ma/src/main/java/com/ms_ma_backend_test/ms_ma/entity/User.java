@@ -1,9 +1,11 @@
 package com.ms_ma_backend_test.ms_ma.entity;
 
+import com.ms_ma_backend_test.ms_ma.dtos.LoginRequest;
 import com.ms_ma_backend_test.ms_ma.dtos.SignUpRequest;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.*;
 import org.hibernate.annotations.CreationTimestamp;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.time.Instant;
 import java.util.ArrayList;
@@ -29,8 +31,7 @@ public class User {
     @Enumerated(EnumType.STRING)
     private ProfileVisibility profileVisibility = ProfileVisibility.PUBLIC;
 
-    @Column(nullable = false, length = 12)
-    @Pattern(regexp = "^[a-zA-Z0-9]{8,12}$", message = "Password must be 8-12 alphanumeric characters with no special symbols.")
+    @Column(nullable = false)
     private String password;
 
     @OneToMany(mappedBy = "requester")
@@ -117,5 +118,11 @@ public class User {
     public void setBadge(String badge) {
         this.badge = badge;
     }
+
+    public boolean isLoginCorrect(LoginRequest loginRequest, PasswordEncoder passwordEncoder) {
+
+        return passwordEncoder.matches(loginRequest.password(), this.password);
+    }
+
 }
 
