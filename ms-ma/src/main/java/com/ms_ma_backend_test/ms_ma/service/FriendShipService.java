@@ -5,6 +5,7 @@ import com.ms_ma_backend_test.ms_ma.entity.FriendShip;
 import com.ms_ma_backend_test.ms_ma.entity.User;
 import com.ms_ma_backend_test.ms_ma.repository.FriendShipRepository;
 import com.ms_ma_backend_test.ms_ma.repository.UserRepository;
+import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
@@ -21,16 +22,18 @@ public class FriendShipService {
         this.friendShipRepository = friendShipRepository;
     }
 
-    public void requestFriendShip(Long requesterId, Long friendId) {
+    public void requestFriendShip(Long friendId, JwtAuthenticationToken token) {
 
+
+        var requesterId = Long.valueOf(token.getName());
         var requester = userRepository.findById(requesterId)
                 .orElseThrow(() -> new RuntimeException("Requester not found"));
 
         var friend = userRepository.findById(friendId)
-                .orElseThrow(() -> new RuntimeException("Friend not found"));
+                .orElseThrow(() -> new RuntimeException("User not found"));
 
-        if (friend.getProfileVisibility().equals(User.ProfileVisibility.HIDDEN)) {
-            throw new RuntimeException("This user cannot receive friendships requests");
+        if (requesterId.equals(friendId)) {
+            throw new RuntimeException("Is not possible sent a friendship request for yourself");
         }
 
         FriendShip friendShip = new FriendShip();
@@ -41,39 +44,50 @@ public class FriendShipService {
 
     }
 
-    public void acceptFriendShip(Long friendId, Long requesterId) {
+    public void acceptFriendShip(Long requesterId, JwtAuthenticationToken token) {
 
         var requester = userRepository.findById(requesterId)
                 .orElseThrow(() -> new RuntimeException("Requester not found"));
 
-        var friend = userRepository.findById(friendId)
-                .orElseThrow(() -> new RuntimeException("Friend not found"));
+        var userId = Long.valueOf(token.getName());
+        var user = userRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("User not found"));
 
-        var friendShip = friendShipRepository.findByRequesterAndFriend(requester, friend)
+        var friendShip = friendShipRepository.findByRequesterAndFriend(requester, user)
                 .orElseThrow(() -> new RuntimeException("This friendship request does not exist"));
+
+        if (friendShip.getStatus() != FriendShip.FriendshipStatus.PENDING) {
+            throw new RuntimeException("This request has already been answered.");
+        }
 
         friendShip.setStatus(FriendShip.FriendshipStatus.ACCEPTED);
         friendShipRepository.save(friendShip);
     }
 
-    public void declineFriendShip(Long friendId, Long requesterId) {
+    public void declineFriendShip(Long requesterId, JwtAuthenticationToken token) {
 
         var requester = userRepository.findById(requesterId)
                 .orElseThrow(() -> new RuntimeException("Requester not found"));
 
-        var friend = userRepository.findById(friendId)
-                .orElseThrow(() -> new RuntimeException("Friend not found"));
+       var userId = Long.valueOf(token.getName());
+       var user = userRepository.findById(userId)
+               .orElseThrow(() -> new RuntimeException("User not found"));
 
-        var friendShip = friendShipRepository.findByRequesterAndFriend(requester, friend)
+        var friendShip = friendShipRepository.findByRequesterAndFriend(requester, user)
                 .orElseThrow(() -> new RuntimeException("This friendship request does not exist"));
+
+        if (friendShip.getStatus() != FriendShip.FriendshipStatus.PENDING) {
+            throw new RuntimeException("This request has already been answered.");
+        }
 
         friendShip.setStatus(FriendShip.FriendshipStatus.DECLINED);
         friendShipRepository.save(friendShip);
 
     }
 
-    public List<UserDto> getUserFriends(Long userId) {
+    public List<UserDto> getUserFriends(JwtAuthenticationToken token) {
 
+        var userId = Long.valueOf(token.getName());
         var user = userRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
