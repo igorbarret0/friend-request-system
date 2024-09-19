@@ -20,10 +20,10 @@ public class FriendShipController {
     }
 
     @PostMapping("/request")
-    public ResponseEntity<String> requestFriendShip(@RequestParam Long requesterId,
+    public ResponseEntity<String> requestFriendShip(@RequestParam Long friendId,
                                                     JwtAuthenticationToken token) {
 
-        friendShipService.requestFriendShip(requesterId, token);
+        friendShipService.requestFriendShip(friendId, token);
         return ResponseEntity.ok("Your request was sent successfully");
     }
 
