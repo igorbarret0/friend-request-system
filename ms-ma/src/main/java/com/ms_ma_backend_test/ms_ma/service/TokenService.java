@@ -44,12 +44,9 @@ public class TokenService {
                 .issuedAt(now)
                 .expiresAt(now.plusSeconds(expiresIn))
                 .build();
-
         var jwtValue = jwtEncoder.encode(JwtEncoderParameters.from(claims)).getTokenValue();
 
         return new LoginResponse(jwtValue, expiresIn);
-
-
     }
 
 }
