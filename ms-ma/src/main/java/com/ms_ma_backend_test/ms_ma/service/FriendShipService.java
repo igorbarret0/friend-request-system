@@ -69,9 +69,9 @@ public class FriendShipService {
         var requester = userRepository.findById(requesterId)
                 .orElseThrow(() -> new RuntimeException("Requester not found"));
 
-       var userId = Long.valueOf(token.getName());
-       var user = userRepository.findById(userId)
-               .orElseThrow(() -> new RuntimeException("User not found"));
+        var userId = Long.valueOf(token.getName());
+        var user = userRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("User not found"));
 
         var friendShip = friendShipRepository.findByRequesterAndFriend(requester, user)
                 .orElseThrow(() -> new RuntimeException("This friendship request does not exist"));
@@ -114,7 +114,7 @@ public class FriendShipService {
         return allFriends;
     }
 
-    private UserDto convertUserToDto(User user) {
+    UserDto convertUserToDto(User user) {
 
         UserDto userDTO = new UserDto();
         userDTO.setId(user.getId());
