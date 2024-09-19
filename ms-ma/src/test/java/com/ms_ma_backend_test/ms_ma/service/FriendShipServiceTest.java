@@ -43,7 +43,6 @@ public class FriendShipServiceTest {
         MockitoAnnotations.openMocks(this);
 
         token = Mockito.mock(JwtAuthenticationToken.class);
-        when(token.getName()).thenReturn("1");
 
         user = new User();
         user.setId(1L);
@@ -121,7 +120,7 @@ public class FriendShipServiceTest {
         RuntimeException exception = assertThrows(RuntimeException.class, () ->
                 friendShipService.requestFriendShip(requesterId, token));
 
-        assertEquals("Is not possible sent a friendship request for yourself", exception.getMessage());
+        assertEquals("It is not possible sent a friendship request for yourself", exception.getMessage());
     }
 
     @Test
@@ -236,7 +235,7 @@ public class FriendShipServiceTest {
         RuntimeException exception = assertThrows(RuntimeException.class, () ->
                 friendShipService.acceptFriendShip(requesterId, token));
 
-        assertEquals("This request has already been answered.", exception.getMessage());
+        assertEquals("This request has already been answered", exception.getMessage());
 
     }
 
@@ -320,6 +319,8 @@ public class FriendShipServiceTest {
         user.setReceivedFriendships(new ArrayList<>());
         user.setSentFriendships(new ArrayList<>());
 
+        when(token.getName()).thenReturn("1");
+
         when(userRepository.findById(1L)).thenReturn(Optional.of(user));
 
         List<UserDto> friends = friendShipService.getUserFriends(token);
@@ -334,6 +335,9 @@ public class FriendShipServiceTest {
         when(userRepository.findById(1L)).thenReturn(Optional.of(user));
 
         when(userRepository.findById(2L)).thenReturn(Optional.of(acceptedFriendship.getRequester()));
+
+        when(token.getName()).thenReturn("1");
+
 
         UserDto friendDto = new UserDto();
         doReturn(friendDto).when(friendShipService).convertUserToDto(acceptedFriendship.getRequester());
@@ -352,6 +356,8 @@ public class FriendShipServiceTest {
 
         when(userRepository.findById(2L)).thenReturn(Optional.of(acceptedFriendship.getRequester()));
 
+        when(token.getName()).thenReturn("1");
+
         UserDto friendDto = new UserDto();
         when(friendShipService.convertUserToDto(acceptedFriendship.getRequester())).thenReturn(friendDto);
 
@@ -364,6 +370,8 @@ public class FriendShipServiceTest {
     @Test
     @DisplayName("Should throw exception when user not found")
     void getUserFriends_Case4() {
+
+        when(token.getName()).thenReturn("1");
 
         when(userRepository.findById(1L)).thenReturn(Optional.empty());
 
